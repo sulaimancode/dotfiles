@@ -370,6 +370,13 @@ local on_attach = function(_, bufnr)
   end, { desc = 'Format current buffer with LSP' })
 end
 
+-- Create a command :SyncConfig that will sync the config to git repo
+vim.api.nvim_create_user_command(
+    'SyncConfig',
+    'te  Copy-Item -Path $pwd -Destination C:\\github\\dotfiles\\.config -Recurse -Force',
+    { desc = 'Sync config to git repo'}
+)
+
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
