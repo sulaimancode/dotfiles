@@ -51,13 +51,13 @@ require('packer').startup(function(use)
   use 'navarasu/onedark.nvim' -- Theme inspired by Atom
   use 'nvim-lualine/lualine.nvim' -- Fancier statusline
   use 'numToStr/Comment.nvim' -- "gc" to comment visual regions/lines
-  use 'tpope/vim-sleuth' -- Detect tabstop and shiftwidth automatically
+  -- use 'tpope/vim-sleuth' Detect tabstop and shiftwidth automatically
 
   -- Fuzzy Finder (files, lsp, etc)
   use { 'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' } }
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built. Only load if `make` is available
-  use {'nvim-telescope/telescope-fzf-native.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
+  use { 'nvim-telescope/telescope-fzf-native.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
 
   use 'theprimeagen/harpoon'
   use 'tpope/vim-surround'
@@ -66,7 +66,6 @@ require('packer').startup(function(use)
   use 'windwp/nvim-ts-autotag'
 
   use 'jose-elias-alvarez/null-ls.nvim'
-  use 'MunifTanjim/prettier.nvim'
 
   use 'github/copilot.vim'
 
@@ -75,6 +74,11 @@ require('packer').startup(function(use)
     requires = { 'tjdevries/colorbuddy.vim' }
   }
   use 'Mofiqul/vscode.nvim'
+
+  use({
+    "iamcco/markdown-preview.nvim",
+    run = function() vim.fn["mkdp#util#install"]() end,
+  })
 
   -- Add custom plugins to packer from ~/.config/nvim/lua/custom/plugins.lua
   local has_plugins, plugins = pcall(require, 'custom.plugins')
@@ -110,6 +114,15 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
+
+
+-- Fix tabs 
+vim.opt.tabstop = 4
+vim.opt.softtabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.expandtab = true
+
+vim.opt.smartindent = true
 
 vim.o.scrolloff = 8
 -- Set highlight on search
@@ -237,7 +250,7 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'help', 'vim', 'tsx', 'json', 'css' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'help', 'vim', 'tsx', 'json', 'css', 'html', 'svelte', 'javascript' },
 
   autotag = { enable = true },
   highlight = { enable = true },
@@ -245,8 +258,8 @@ require('nvim-treesitter.configs').setup {
   incremental_selection = {
     enable = true,
     keymaps = {
-      init_selection = '<c-space>',
-      node_incremental = '<c-space>',
+      init_selection = '<c-Space>',
+      node_incremental = '<c-Space>',
       scope_incremental = '<c-s>',
       node_decremental = '<c-backspace>',
     },
@@ -409,7 +422,7 @@ cmp.setup {
     end,
   },
   mapping = cmp.mapping.preset.insert {
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-d>'] = cmp.mapping.scroll_docs( -4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete(),
     ['<CR>'] = cmp.mapping.confirm {
@@ -428,8 +441,8 @@ cmp.setup {
     ['<C-p>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then
-        luasnip.jump(-1)
+      elseif luasnip.jumpable( -1) then
+        luasnip.jump( -1)
       else
         fallback()
       end
