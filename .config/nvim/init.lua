@@ -424,15 +424,52 @@ mason_lspconfig.setup({
 	ensure_installed = vim.tbl_keys(servers),
 })
 
-mason_lspconfig.setup_handlers({
-	function(server_name)
-		require("lspconfig")[server_name].setup({
-			capabilities = capabilities,
-			on_attach = on_attach,
-			settings = servers[server_name],
-		})
-	end,
-})
+-- Fix typescriptreact go to definition showing
+-- definitions for react/index.d.ts
+local function filter(arr, fn)
+  if type(arr) ~= "table" then
+    return arr
+  end
+
+  local filtered = {}
+  for k, v in pairs(arr) do
+    if fn(v, k, arr) then
+      table.insert(filtered, v)
+    end
+  end
+
+  return filtered
+end
+
+local function filterReactDTS(value)
+  return string.match(value.targetUri, 'react/index.d.ts') == nil
+end
+
+mason_lspconfig.setup_handlers {
+  function(server_name)
+    require('lspconfig')[server_name].setup {
+      capabilities = capabilities,
+      on_attach = on_attach,
+      settings = servers[server_name],
+    }
+  end,
+  ["tsserver"] = function () 
+    require('lspconfig')['tsserver'].setup {
+      capabilities = capabilities,
+      on_attach = on_attach,
+      handlers = {
+        ['textDocument/definition'] = function(err, result, method, ...)
+          if vim.tbl_islist(result) and #result > 1 then
+            local filtered_result = filter(result, filterReactDTS)
+            return vim.lsp.handlers['textDocument/definition'](err, filtered_result, method, ...)
+          end
+
+          vim.lsp.handlers['textDocument/definition'](err, result, method, ...)
+        end
+      }
+    }
+  end
+}
 
 -- Turn on lsp status information
 require("fidget").setup()
